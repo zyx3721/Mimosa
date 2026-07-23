@@ -5,7 +5,7 @@
 
 # === CONFIG ===
 # get your city id at https://openweathermap.org/find and replace
-city_id=1701668
+city_id=1799869
 
 # replace with yours, its free
 api_key=e46d6b1c945f2e9983f0735f8928ea2f
@@ -14,7 +14,7 @@ api_key=e46d6b1c945f2e9983f0735f8928ea2f
 unit=metric
 
 # i'm not sure it will support all languange, 
-lang=en
+lang=zh_cn
 
 url="https://api.openweathermap.org/data/2.5/weather?id=${city_id}&appid=${api_key}&cnt=5&units=${unit}&lang=${lang}"
 weather_file=~/.cache/weather.json
@@ -44,23 +44,23 @@ wind_direction () {
 	deg=${deg%.*}  # remove decimals
 
 	if (( deg >= 0 && deg <= 22 )) || (( deg > 337 && deg <= 360 )); then
-		echo "North"
+		echo "北风"
 	elif (( deg > 22 && deg <= 67 )); then
-		echo "North East"
+		echo "东北风"
 	elif (( deg > 67 && deg <= 112 )); then
-		echo "East"
+		echo "东风"
 	elif (( deg > 112 && deg <= 157 )); then
-		echo "South East"
+		echo "东南风"
 	elif (( deg > 157 && deg <= 202 )); then
-		echo "South"
+		echo "南风"
 	elif (( deg > 202 && deg <= 247 )); then
-		echo "South West"
+		echo "西南风"
 	elif (( deg > 247 && deg <= 292 )); then
-		echo "West"
+		echo "西风"
 	elif (( deg > 292 && deg <= 337 )); then
-		echo "North West"
+		echo "西北风"
 	else
-		echo "Unknown"
+		echo "未知"
 	fi
 }
 
