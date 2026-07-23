@@ -1,0 +1,137 @@
+--[==[
+	Version		: 1.3
+	Author		: Closebox73
+	Description	: system_rings.lua: 4 rings for CPU, RAM, Battery, and Temperature (acpitemp)
+]==]
+
+require 'cairo'
+require 'cairo_xlib'
+
+-- Ring configuration table
+system_rings = {
+    {
+        name = 'cpu',
+        arg = 'cpu0',
+        max = 100,
+        x = 49.5, y = 345.5,
+        radius = 25,
+        thickness = 7,
+        start_angle = 0,
+        end_angle = 360,
+        bg_color = 0xffffff,
+        bg_alpha = 0.1,
+        fg_color = 0x32d74c,
+        fg_alpha = 1.0,
+        rounded = true
+    },
+    {
+        name = 'memperc',
+        arg = '',
+        max = 100,
+        x = 119.7, y = 345.5,
+        radius = 25,
+        thickness = 7,
+        start_angle = 0,
+        end_angle = 360,
+        bg_color = 0xffffff,
+        bg_alpha = 0.1,
+        fg_color = 0x32d74c,
+        fg_alpha = 1.0,
+        rounded = true
+    },
+    {
+        name = 'battery_percent',
+        arg = 'BAT0',
+        max = 100,
+        x = 190, y = 345.5,
+        radius = 25,
+        thickness = 7,
+        start_angle = 0,
+        end_angle = 360,
+        bg_color = 0xFFFFFF,
+        bg_alpha = 0.1,
+        fg_color = 0x32d74c,
+        fg_alpha = 1.0,
+        rounded = true
+    },
+    {
+        name = 'hwmon',
+        arg = '9 temp 1',
+        max = 100,
+        x = 259.5, y = 345.5,
+        radius = 25,
+        thickness = 7,
+        start_angle = 0,
+        end_angle = 360,
+        bg_color = 0xFFFFFF,
+        bg_alpha = 0.1,
+        fg_color = 0x32d74c,
+        fg_alpha = 1.0,
+        rounded = true
+    }
+}
+
+-- Converts hex color to normalized RGBA components
+function rgb_to_r_g_b(colour, alpha)
+	return ((colour / 0x10000) % 0x100) / 255.,
+	       ((colour / 0x100) % 0x100) / 255.,
+	       (colour % 0x100) / 255.,
+	       alpha
+end
+
+-- Draws a single ring with background and foreground arcs
+function draw_system_ring(cr, ring, value)
+    local angle_0 = (ring.start_angle or 0) * (math.pi / 180) - (math.pi / 2)
+    local angle_f = (ring.end_angle or 360) * (math.pi / 180) - (math.pi / 2)
+    local angle_v = angle_0 + (angle_f - angle_0) * (value / ring.max)
+
+    local r, g, b, a = rgb_to_r_g_b(ring.bg_color, ring.bg_alpha)
+
+    -- Background circle
+    cairo_new_sub_path(cr)
+    cairo_arc(cr, ring.x, ring.y, ring.radius, 0, 2 * math.pi)
+    cairo_set_source_rgba(cr, r, g, b, a)
+    cairo_set_line_width(cr, ring.thickness)
+    cairo_stroke(cr)
+
+    r, g, b, a = rgb_to_r_g_b(ring.fg_color, ring.fg_alpha)
+
+    -- Foreground arc (only if value > 0)
+    if value > 0 then
+        cairo_new_sub_path(cr)
+        cairo_arc(cr, ring.x, ring.y, ring.radius, angle_0, angle_v)
+        cairo_set_source_rgba(cr, r, g, b, a)
+        cairo_set_line_width(cr, ring.thickness)
+        if ring.rounded then
+            cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND)
+        end
+        cairo_stroke(cr)
+    end
+end
+
+-- Main function called by Conky
+function conky_system_rings()
+    if conky_window == nil then return end
+
+    local w = conky_window.width
+    local h = conky_window.height
+    if w == 0 or h == 0 then return end
+
+    local cs = cairo_xlib_surface_create(conky_window.display, conky_window.drawable,
+                                         conky_window.visual, w, h)
+    local cr = cairo_create(cs)
+
+    for i, ring in ipairs(system_rings) do
+        local val = tonumber(conky_parse('${' .. ring.name .. ' ' .. ring.arg .. '}')) or 0
+        draw_system_ring(cr, ring, val)
+    end
+
+    cairo_destroy(cr)
+    cairo_surface_destroy(cs)
+end
+
+-- Wrapper: calls both draw_disk_bars and system_rings
+function conky_draw_all()
+    conky_draw_disk_bars()
+    conky_system_rings()
+end
