@@ -5,7 +5,6 @@
 ]==]
 
 require 'cairo'
-require 'cairo_xlib'
 
 -- Ring configuration table
 system_rings = {

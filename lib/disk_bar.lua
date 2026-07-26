@@ -5,7 +5,6 @@
 ]==]
 
 require 'cairo'
-require 'cairo_xlib'
 
 -- Helper function to draw rounded rectangles
 function draw_rounded_rectangle(cr, x, y, w, h, r)
