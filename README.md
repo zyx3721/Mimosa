@@ -21,6 +21,37 @@
 - 🎵 媒体播放器控制（显示当前播放信息）
 - 🎨 精美的圆环图形显示
 
+## 媒体播放器模块依赖说明
+
+> **播放器模块默认依赖 `playerctl`，未安装时该模块无法正常显示播放状态、歌曲标题、歌手和播放进度。**
+
+### 必需依赖
+
+- `playerctl`：用于读取系统当前媒体播放器的 MPRIS 信息
+
+### 安装方法
+
+Ubuntu / Debian：
+
+```bash
+sudo apt update
+sudo apt install -y playerctl
+```
+
+### 触发前提
+
+安装 `playerctl` 后，还需要系统中存在支持 **MPRIS** 的媒体播放器，播放器模块才会显示内容，例如：
+
+- VLC
+- Spotify
+- Firefox / Chromium 中正在播放音频或视频的网页标签页
+- 其他支持 MPRIS 的 Linux 桌面播放器
+
+### 特殊说明
+
+- 如果使用的是 `mpd`，还需要额外安装 `mpDris2`，这样才能被 `playerctl` 读取
+- 如果未安装 `playerctl`，Conky 中播放器区域可能显示为空白，或只显示默认提示信息
+
 ## 文件结构
 
 ```
