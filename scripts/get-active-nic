@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+#********************************************************************
+#Author:           YiLing Wu (hj)
+#email:            huangjing510@126.com
+#Date:             2026-08-03 22:45:09
+#FileName:         get-active-nic 
+#URL:              https://script.huangjingblog.cn
+#Description:      优先使用有线网卡，如未连接则切换到无线网卡
+#Copyright (C):    2026 All rights reserved
+#********************************************************************
+
+# 定义网卡名称（根据你的设备修改）
+WIRED_NIC="enp4s0"      # 有线网卡
+WIRELESS_NIC="wlp0s20f3" # 无线网卡
+
+# 检查网卡是否已连接（carrier 为 1 表示已连接）
+check_nic_status() {
+    local nic=$1
+    if [[ -e "/sys/class/net/$nic/carrier" ]]; then
+        local status=$(cat /sys/class/net/$nic/carrier 2>/dev/null)
+        [[ "$status" == "1" ]] && return 0
+    fi
+    return 1
+}
+
+# 优先级判断
+if check_nic_status "$WIRED_NIC"; then
+    echo "$WIRED_NIC"
+elif check_nic_status "$WIRELESS_NIC"; then
+    echo "$WIRELESS_NIC"
+else
+    # 都未连接时默认输出无线网卡（避免 Conky 报错）
+    echo "$WIRELESS_NIC"
+fi
+
+exit 0
